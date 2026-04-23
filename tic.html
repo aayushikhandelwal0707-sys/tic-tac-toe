@@ -1,0 +1,124 @@
+=<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f4f8;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      background-color: #333;
+      padding: 5px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .cell {
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .cell:hover {
+      background: #e0e0e0;
+    }
+
+    .win-line {
+      position: absolute;
+      height: 5px;
+      background: red;
+      transform-origin: left center;
+    }
+  </style>
+</head>
+<body>
+  <div class="board" id="board">
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+  </div>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const board = document.getElementById('board');
+    let turn = 'X';
+    let gameOver = false;
+
+    cells.forEach((cell, index) => {
+      cell.addEventListener('click', () => {
+        if (!gameOver && cell.textContent === '') {
+          cell.textContent = turn;
+          if (checkWin(turn)) {
+            gameOver = true;
+            drawWinLine(checkWin(turn));
+            alert(turn + ' wins!');
+          }
+          turn = (turn === 'X') ? 'O' : 'X';
+        }
+      });
+    });
+
+    function checkWin(player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8], // rows
+        [0,3,6], [1,4,7], [2,5,8], // columns
+        [0,4,8], [2,4,6]           // diagonals
+      ];
+
+      for (let pattern of winPatterns) {
+        if (pattern.every(i => cells[i].textContent === player)) {
+          return pattern;
+        }
+      }
+      return null;
+    }
+
+    function drawWinLine(pattern) {
+      const rects = pattern.map(i => cells[i].getBoundingClientRect());
+      const boardRect = board.getBoundingClientRect();
+
+      const x1 = rects[0].left + rects[0].width/2 - boardRect.left;
+      const y1 = rects[0].top + rects[0].height/2 - boardRect.top;
+      const x2 = rects[2].left + rects[2].width/2 - boardRect.left;
+      const y2 = rects[2].top + rects[2].height/2 - boardRect.top;
+
+      const length = Math.hypot(x2 - x1, y2 - y1);
+      const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+      const line = document.createElement('div');
+      line.className = 'win-line';
+      line.style.width = length + 'px';
+      line.style.left = x1 + 'px';
+      line.style.top = y1 + 'px';
+      line.style.transform = `rotate(${angle}deg)`;
+
+      board.appendChild(line);
+    }
+  </script>
+</body>
+</html>
